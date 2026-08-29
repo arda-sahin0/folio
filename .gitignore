@@ -1,0 +1,33 @@
+# ---- secrets ----
+.env
+*.env
+!.env.example
+.psql_history
+
+# ---- bulk / regenerable data ----
+# "data/*" not "data/" — a negation cannot re-include a file inside an
+# excluded directory, and we need data/.gitkeep tracked so the folder
+# survives a fresh clone.
+data/*
+!data/.gitkeep
+*.csv
+!tests/fixtures/*.csv
+*.dump
+*.sql.gz
+
+# ---- python ----
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# ---- editors / tools ----
+.idea/
+.vscode/
+*.log
+*.swp
+
+# ---- os ----
+.DS_Store
+Thumbs.db

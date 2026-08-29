@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16
+    container_name: folio-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-folio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-folio}
+      POSTGRES_DB: ${POSTGRES_DB:-folio}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - folio_data:/var/lib/postgresql/data
+      - ./data:/data:ro
+      - ./migrations:/migrations:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-folio} -d ${POSTGRES_DB:-folio}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  folio_data:

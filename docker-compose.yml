@@ -12,6 +12,8 @@ services:
       - folio_data:/var/lib/postgresql/data
       - ./data:/data:ro
       - ./migrations:/migrations:ro
+      - ./queries:/queries:ro
+      - ./loaders:/loaders:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-folio} -d ${POSTGRES_DB:-folio}"]
       interval: 3s

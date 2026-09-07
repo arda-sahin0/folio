@@ -9,6 +9,7 @@
 # excluded directory, and we need data/.gitkeep tracked so the folder
 # survives a fresh clone.
 data/*
+!data/securities.csv
 !data/.gitkeep
 *.csv
 !tests/fixtures/*.csv

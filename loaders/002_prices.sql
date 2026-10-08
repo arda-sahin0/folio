@@ -47,4 +47,17 @@ ON CONFLICT (security_id, trade_date) DO UPDATE SET open   = excluded.open,
 WHERE daily_prices.close IS DISTINCT FROM excluded.close
    OR daily_prices.volume IS DISTINCT FROM excluded.volume;
 
+INSERT INTO staging.rejects (loader, reason, raw_row)
+SELECT '002_prices', r.reject_reason, to_jsonb(r)
+FROM staging.raw_prices r
+WHERE r.reject_reason IS NOT NULL;
 
+INSERT INTO staging.rejects (loader, reason, raw_row)
+SELECT '002_prices', 'no symbol mapping', to_jsonb(r)
+FROM staging.raw_prices r
+LEFT JOIN security_sources ss
+        ON ss.source = 'yfinance' AND ss.symbol = r.symbol
+WHERE r.reject_reason IS NULL
+    AND ss.security_id IS NULL;
+
+DROP TABLE staging.raw_prices;

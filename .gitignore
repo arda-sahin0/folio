@@ -5,14 +5,13 @@
 .psql_history
 
 # ---- bulk / regenerable data ----
-# "data/*" not "data/" — a negation cannot re-include a file inside an
-# excluded directory, and we need data/.gitkeep tracked so the folder
-# survives a fresh clone.
-data/*
-!data/securities.csv
-!data/.gitkeep
 *.csv
 !tests/fixtures/*.csv
+
+data/*
+!data/securities.csv
+!data/currencies.csv
+!data/.gitkeep
 *.dump
 *.sql.gz
 

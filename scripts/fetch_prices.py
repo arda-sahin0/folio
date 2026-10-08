@@ -9,7 +9,7 @@ import yfinance as yf
  
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
-PERIOD = "5y"
+PERIOD = "max"
  
  
 def load_env() -> dict:
@@ -103,23 +103,23 @@ def main() -> None:
               f"{n_splits:>2} splits  {n_dividends:>3} dividends")
  
         time.sleep(0.5)   # be polite
- 
-    write_csv(DATA / "prices.csv",
-              ["symbol", "date", "open", "high", "low", "close", "volume"], price_rows)
-    write_csv(DATA / "splits.csv",
-              ["symbol", "ex_date", "ratio"], split_rows)
-    write_csv(DATA / "dividends.csv",
-              ["symbol", "ex_date", "amount"], dividend_rows)
+
+        if failed:
+            print(f"\nFailed: {len(failed)} - not writing any files", file=sys.stderr)
+            for line in failed:
+                print(f"  {line}", file=sys.stderr)
+            sys.exit(1)
+
+        write_csv(DATA / "prices.csv",
+                  ["symbol", "date", "open", "high", "low", "close", "volume"], price_rows)
+        write_csv(DATA / "splits.csv",
+                  ["symbol", "ex_date", "ratio"], split_rows)
+        write_csv(DATA / "dividends.csv",
+                  ["symbol", "ex_date", "amount"], dividend_rows)
  
     print(f"\ndata/prices.csv     {len(price_rows):>7} rows")
     print(f"data/splits.csv     {len(split_rows):>7} rows")
     print(f"data/dividends.csv  {len(dividend_rows):>7} rows")
- 
-    if failed:
-        print(f"\nFailed: {len(failed)}", file=sys.stderr)
-        for line in failed:
-            print(f"  {line}", file=sys.stderr)
-        sys.exit(1)
  
  
 if __name__ == "__main__":

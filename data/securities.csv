@@ -1,5 +1,5 @@
-ticker,name,mic_code,currency,sector,yfinance_symbol
-AAPL,Apple Inc.,XNAS,USD,Information Technology,AAPL
-MSFT,Microsoft Corporation,XNAS,USD,Information Technology,MSFT
-SAP,SAP SE,XETR,EUR,Information Technology,SAP.DE
-BMW,Bayerische Motoren Werke Aktiengesellschaft,XETR,EUR,Consumer Discretionary,BMW.DE
+ticker,name,mic_code,currency,sector,yfinance_symbol,trusted_from
+AAPL,Apple Inc.,XNAS,USD,Information Technology,AAPL,
+MSFT,Microsoft Corporation,XNAS,USD,Information Technology,MSFT,
+SAP,SAP SE,XETR,EUR,Information Technology,SAP.DE,2004-01-01
+BMW,Bayerische Motoren Werke Aktiengesellschaft,XETR,EUR,Consumer Discretionary,BMW.DE,2004-01-01

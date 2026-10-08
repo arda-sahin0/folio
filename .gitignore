@@ -11,6 +11,8 @@
 data/*
 !data/securities.csv
 !data/currencies.csv
+!data/accounts.csv
+!data/transactions.csv
 !data/.gitkeep
 *.dump
 *.sql.gz

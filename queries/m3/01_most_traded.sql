@@ -21,6 +21,7 @@ GROUP BY s.security_id
 ORDER BY average_traded_value DESC;
 
 
+-- Which US trading days had no ECB rate?
 
 SELECT p.trade_date
 FROM daily_prices p

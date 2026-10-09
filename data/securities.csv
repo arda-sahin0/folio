@@ -3,3 +3,16 @@ AAPL,Apple Inc.,XNAS,USD,Information Technology,AAPL,
 MSFT,Microsoft Corporation,XNAS,USD,Information Technology,MSFT,
 SAP,SAP SE,XETR,EUR,Information Technology,SAP.DE,2004-01-01
 BMW,Bayerische Motoren Werke Aktiengesellschaft,XETR,EUR,Consumer Discretionary,BMW.DE,2004-01-01
+NVDA,NVIDIA Corporation,XNAS,USD,Information Technology,NVDA,
+INTC,Intel Corporation,XNAS,USD,Information Technology,INTC,
+AMZN,"Amazon.com, Inc.",XNAS,USD,Consumer Discretionary,AMZN,
+KO,The Coca-Cola Company,XNYS,USD,Consumer Staples,KO,
+JPM,JPMorgan Chase & Co.,XNYS,USD,Financials,JPM,
+XOM,Exxon Mobil Corporation,XNYS,USD,Energy,XOM,
+UNH,UnitedHealth Group Incorporated,XNYS,USD,Health Care,UNH,
+CAT,Caterpillar Inc.,XNYS,USD,Industrials,CAT,
+ALV,Allianz SE,XETR,EUR,Financials,ALV.DE,2004-01-01
+ADS,adidas AG,XETR,EUR,Consumer Discretionary,ADS.DE,2004-01-01
+DTE,Deutsche Telekom AG,XETR,EUR,Communication Services,DTE.DE,2004-01-01
+RWE,RWE AG,XETR,EUR,Utilities,RWE.DE,2004-01-01
+BAS,BASF SE,XETR,EUR,Materials,BAS.DE,2004-01-01

@@ -64,13 +64,8 @@ def main() -> None:
  
     for symbol in symbols:
         try:
-            # auto_adjust=False is essential: we want RAW prices
-            # Adjustment is computed from corporate_actions in M5, and adjusting
-            # already-adjusted data would double-count every split.
-            # actions=True (the default) adds Dividends and "Stock Splits" columns,
-            # so one request gives us all three datasets.
             bars = yf.Ticker(symbol).history(period=PERIOD, auto_adjust=False)
-        except Exception as exc:                      # noqa: BLE001
+        except Exception as exc:
             failed.append(f"{symbol}: {exc}")
             continue
  
@@ -102,7 +97,7 @@ def main() -> None:
         print(f"  {symbol:<12} {len(bars):>6} bars  "
               f"{n_splits:>2} splits  {n_dividends:>3} dividends")
  
-        time.sleep(0.5)   # be polite
+        time.sleep(0.5)
 
         if failed:
             print(f"\nFailed: {len(failed)} - not writing any files", file=sys.stderr)

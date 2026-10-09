@@ -10,7 +10,7 @@ CREATE TABLE staging.raw_splits
     symbol        text,
     ex_date       text,
     ratio         text,
-    reject_reason text          -- NULL means the row is good
+    reject_reason text
 );
 
 COPY staging.raw_splits (symbol, ex_date, ratio)

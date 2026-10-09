@@ -28,13 +28,7 @@ SET reject_reason =
             WHEN rate::numeric <= 0                         THEN 'non-positive rate'
         END;
 
--- Currencies our currencies table doesn't know. Mostly ones that no longer
--- exist: the ECB still publishes history for e.g. CYP (Cyprus pound, replaced by
--- the euro in 2008) and TRL (old Turkish lira, replaced by TRY in 2005), but
--- migration 003 only loaded currencies that are still in use.
---
--- NOT EXISTS is the other way to write an anti-join (compare the
--- LEFT JOIN ... IS NULL form in the other loaders). Same result, usually the same plan.
+
 UPDATE staging.raw_fx r
 SET reject_reason = 'unknown currency'
 WHERE r.reject_reason IS NULL

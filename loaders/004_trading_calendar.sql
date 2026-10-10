@@ -1,3 +1,5 @@
+-- Rebuilds the trading calendar from the loaded prices: one row per exchange per session.
+
 TRUNCATE trading_calendar;
 
 INSERT INTO trading_calendar (mic_code, session_date)

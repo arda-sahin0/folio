@@ -1,17 +1,6 @@
--- 003_prices.sql
---
--- Loads daily OHLCV bars from yfinance into daily_prices.
---
--- Yahoo's prices are ADJUSTED FOR SPLITS even with auto_adjust=False (that flag
--- only removes the dividend adjustment). Apple's close on 2020-08-28 arrives as
--- 124.81, but it actually traded at 499.23; the 4:1 split three days later was
--- applied backwards. daily_prices is meant to hold what actually traded, so every
--- bar is multiplied back by the product of the ratios of all splits AFTER its date,
--- and volume is divided by the same factor.
---
--- Runs after 002_corporate_actions.sql, because it reads the splits from there.
+-- Loads daily OHLCV bars from yfinance. Yahoo adjusts prices for splits, so every bar is
+-- multiplied back by the ratios of all later splits (volume divided) to store what actually traded.
 
--- staging.rejects holds the rejects of the LATEST run of each loader, so clear ours.
 DELETE FROM staging.rejects WHERE loader = '003_prices';
 
 DROP TABLE IF EXISTS staging.raw_prices;
@@ -34,7 +23,8 @@ COPY staging.raw_prices (symbol, date, open, high, low, close, volume)
 UPDATE staging.raw_prices
 SET reject_reason =
         CASE
-            WHEN date   !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'  THEN 'bad date'
+            WHEN date   !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+              OR NOT pg_input_is_valid(date, 'date')        THEN 'bad date'
             WHEN open   !~ '^[0-9]+(\.[0-9]+)?$'           THEN 'bad open'
             WHEN high   !~ '^[0-9]+(\.[0-9]+)?$'           THEN 'bad high'
             WHEN low    !~ '^[0-9]+(\.[0-9]+)?$'           THEN 'bad low'

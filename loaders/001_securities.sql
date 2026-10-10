@@ -1,3 +1,5 @@
+-- Upserts securities and their yfinance symbols from data/securities.csv.
+
 DROP TABLE IF EXISTS staging.raw_securities;
 CREATE TABLE staging.raw_securities
 (

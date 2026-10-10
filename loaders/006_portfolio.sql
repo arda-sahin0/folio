@@ -1,19 +1,5 @@
--- 006_portfolio.sql
---
--- Loads the demo portfolio: data/accounts.csv and data/transactions.csv.
--- Both files are hand-written (committed to git), not vendor data.
---
--- The ledger is APPEND-ONLY. A transaction, once booked, is never changed by a
--- later load: ON CONFLICT (external_ref) DO NOTHING. If a row in the CSV differs
--- from what is already booked under the same external_ref, it is rejected as
--- 'differs from booked transaction' rather than silently overwriting history.
--- Real ledgers correct mistakes with a new, reversing entry. For this demo data,
--- reset.ps1 + load.ps1 rebuilds everything from scratch.
---
--- Rows whose SHAPE is wrong (a buy without a price, a deposit with a ticker, ...)
--- are not pre-checked here: the txn_shape constraint fails the load with its name
--- in the error. That's deliberate for hand-curated input: a typo should stop you,
--- not disappear into the reject log.
+-- Loads the demo account and its append-only ledger. A booked transaction never changes:
+-- a CSV row that differs from it is rejected, and a malformed row fails the txn_shape constraint.
 
 DELETE FROM staging.rejects WHERE loader = '006_portfolio';
 

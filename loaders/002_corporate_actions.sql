@@ -1,3 +1,6 @@
+-- Loads splits and dividends from yfinance. Splits first: Yahoo's dividends are split-adjusted,
+-- so each one is multiplied back by the ratios of all later splits.
+
 DELETE FROM staging.rejects WHERE loader = '002_corporate_actions';
 
 
@@ -19,7 +22,8 @@ COPY staging.raw_splits (symbol, ex_date, ratio)
 UPDATE staging.raw_splits
 SET reject_reason =
         CASE
-            WHEN ex_date !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN 'bad date'
+            WHEN ex_date !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+              OR NOT pg_input_is_valid(ex_date, 'date')     THEN 'bad date'
             WHEN ratio   !~ '^[0-9]+(\.[0-9]+)?$'          THEN 'bad ratio'
             WHEN ratio::numeric <= 0                       THEN 'non-positive ratio'
         END;
@@ -77,7 +81,8 @@ COPY staging.raw_dividends (symbol, ex_date, amount)
 UPDATE staging.raw_dividends
 SET reject_reason =
         CASE
-            WHEN ex_date !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' THEN 'bad date'
+            WHEN ex_date !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+              OR NOT pg_input_is_valid(ex_date, 'date')     THEN 'bad date'
             WHEN amount  !~ '^[0-9]+(\.[0-9]+)?$'          THEN 'bad amount'
             WHEN amount::numeric <= 0                      THEN 'non-positive amount'
         END;

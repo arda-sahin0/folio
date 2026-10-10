@@ -1,7 +1,4 @@
--- 005_fx_rates.sql
---
--- Loads the ECB euro reference rates written by scripts/fetch_fx.py.
--- Each row of data/fx_rates.csv means: on <date>, 1 EUR = <rate> <currency>.
+-- Loads ECB euro reference rates: each row means 1 EUR = rate units of the quote currency.
 
 DELETE FROM staging.rejects WHERE loader = '005_fx_rates';
 
@@ -11,7 +8,7 @@ CREATE TABLE staging.raw_fx
     date          text,
     currency      text,
     rate          text,
-    reject_reason text          -- NULL means the row is good
+    reject_reason text
 );
 
 COPY staging.raw_fx (date, currency, rate)
@@ -21,7 +18,7 @@ UPDATE staging.raw_fx
 SET reject_reason =
         CASE
             WHEN date     !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
-              OR NOT pg_input_is_valid(date, 'date')        THEN 'bad date'   -- regex = format, this = a real date
+              OR NOT pg_input_is_valid(date, 'date')        THEN 'bad date'
             WHEN currency !~ '^[A-Z]{3}$'                   THEN 'bad currency code'
             WHEN currency = 'EUR'                           THEN 'quote equals base'
             WHEN rate     !~ '^[0-9]+(\.[0-9]+)?$'          THEN 'bad rate'

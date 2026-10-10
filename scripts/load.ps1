@@ -1,3 +1,6 @@
+# Runs the loaders in filename order. Pass a name to run only matching loaders, e.g. .\scripts\load.ps1 001_securities
+param([string]$Only = "*")
+
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
 
@@ -13,8 +16,8 @@ if ($status -ne 'healthy') {
     throw "folio-db is not healthy (status: '$status'). Run 'docker compose up -d' first."
 }
 
-$files = Get-ChildItem loaders\*.sql | Sort-Object Name
-if ($files.Count -eq 0) { throw "No .sql files found in loaders\" }
+$files = @(Get-ChildItem "loaders\$Only.sql" | Sort-Object Name)
+if ($files.Count -eq 0) { throw "No loader matches loaders\$Only.sql" }
 
 foreach ($f in $files) {
     Write-Host "  -> $($f.Name)" -ForegroundColor DarkGray

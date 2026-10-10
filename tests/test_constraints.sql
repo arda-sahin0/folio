@@ -1,6 +1,3 @@
--- Tries to insert bad data into every table. Each attack must be rejected by a constraint,
--- and each valid row must be accepted. Everything runs in one transaction that is rolled back.
-
 BEGIN;
 
 INSERT INTO securities (ticker, name, mic_code, currency, sector)

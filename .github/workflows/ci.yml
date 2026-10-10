@@ -25,6 +25,18 @@ jobs:
       - name: Migrate, load twice, test, run every query
         run: bash tests/run.sh
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Command-line interface against the test database
+        run: |
+          python -m pip install "psycopg[binary]==3.3.6" "rich==15.0.0"
+          python scripts/folio.py list
+          python scripts/folio.py whatif AAPL 2020-08-28 --amount 1000 --to 2020-09-01
+          python scripts/folio.py compare 2020-08-28 --to 2020-09-01
+          python scripts/folio.py portfolio --as-of 2020-09-01 --history
+
       - name: Database log
         if: failure()
         run: docker compose logs db
@@ -39,6 +51,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+
+      - name: Install CLI dependencies
+        run: python -m pip install "psycopg[binary]==3.3.6" "rich==15.0.0"
 
       - name: Compile scripts
         run: python -m py_compile scripts/*.py

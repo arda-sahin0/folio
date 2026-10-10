@@ -1,5 +1,3 @@
--- Checks the demo ledger: every transaction booked, and the positions it implies.
-
 SELECT pg_temp.eq('transactions booked', (SELECT count(*) FROM transactions), 52);
 
 SELECT pg_temp.eq('portfolio rejects', (SELECT count(*) FROM staging.rejects WHERE loader = '006_portfolio'), 0);

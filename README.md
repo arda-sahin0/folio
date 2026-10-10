@@ -18,7 +18,8 @@ Everything is answered in SQL. Python only downloads the raw files.
 | FX rates | 186,744 ECB euro reference rates for 30 currencies, 1999 → today |
 | Data quality | 12,282 vendor rows rejected with a reason; every load reconciles to the row |
 | Portfolio | a 52-transaction demo ledger (deposits, buys, sells, dividends, fees) |
-| Tests | 34 constraint attacks, loader checks against hand-built fixtures, an idempotency proof, all run in CI on every push |
+| Tests | 34 constraint attacks, loader and analytics checks against hand-built fixtures, an idempotency proof, all run in CI on every push |
+| CLI | `folio whatif`, `compare` and `portfolio`: what an investment would be worth today, computed entirely in SQL |
 
 ## How data flows
 
@@ -116,6 +117,58 @@ python scripts\fetch_fx.py                   # ECB: euro reference rates
 
 Connect with any client on `localhost:<POSTGRES_PORT>` and run the files in `queries/`.
 
+## Command-line interface
+
+`scripts/folio.py` answers "what if I had bought…?" and shows how the demo portfolio performed. All calculations are SQL functions in [`migrations/013_analytics.sql`](migrations/013_analytics.sql) (`whatif`, `portfolio_positions`, `portfolio_summary`, and an as-of FX lookup `eur_rate`), so the same numbers are available from any SQL client:
+
+```sql
+SELECT * FROM whatif('NVDA', '2016-01-04', p_amount => 1000);
+```
+
+From PowerShell, with the venv active:
+
+```powershell
+python scripts\folio.py list                                        # securities and their price history
+python scripts\folio.py whatif AAPL 2015-01-02 --shares 10          # buy 10 shares at that day's close
+python scripts\folio.py whatif NVDA 2016-01-04 --amount 1000        # invest €1,000 (or --currency USD)
+python scripts\folio.py whatif SAP 2008-01-02 --amount 5000 --to 2012-12-31
+python scripts\folio.py compare 2016-01-04 --amount 1000            # the same €1,000 in every stock, ranked
+python scripts\folio.py portfolio --history                         # the demo account, with year-end values
+```
+
+```
+╭──────── NVIDIA Corporation (NVDA)  2016-01-04 → 2026-10-09 ─────────╮
+│   Purchase                                                          │
+│     Bought on                                          2016-01-04   │
+│     Price                                                  $32.37   │
+│     Shares                                              33.666976   │
+│     Cost                                   $1,089.80  (€1,000.00)   │
+│                                                                     │
+│   Holding                                                           │
+│     Valued on                                          2026-10-09   │
+│     Price                                                 $229.28   │
+│     Splits                                                    ×40   │
+│     Shares now                                        1,346.67904   │
+│     Value                              $308,766.57  (€276,029.47)   │
+│     Dividends received                         $950.25  (€826.58)   │
+│                                                                     │
+│   Result                                                            │
+│     Profit                                           +$308,627.02   │
+│     Total return                                      +28,319.60%   │
+│     Profit in EUR                                    +€275,856.06   │
+│     Total return in EUR                               +27,585.61%   │
+│     Per year (EUR)                      +68.63%  over 10.76 years   │
+│                                                                     │
+│   Risk                                                              │
+│     Volatility (annualised)                                49.12%   │
+│     Max drawdown               -66.36%  (2021-11-29 → 2022-10-14)   │
+│     Best day                                +29.81%  (2016-11-11)   │
+│     Worst day                               -18.76%  (2018-11-16)   │
+╰─────────────────────────────────────────────────────────────────────╯
+```
+
+The purchase happens at the close of the first session on or after the date. Splits multiply the shares, dividends are paid out as cash (not reinvested), and amounts in other currencies are converted at the ECB rate of each day, so the EUR return includes the currency effect. Where a rate or price is missing the result says *n/a* rather than guessing.
+
 ## Highlights
 
 **Finding fake crashes** ([`queries/m4/01_daily_returns.sql`](queries/m4/01_daily_returns.sql)). Close-to-close returns with `lag()` on raw prices make every split look like a crash. Scaling the close on each ex-date by that day's split ratio removes them, and real events appear:
@@ -156,9 +209,10 @@ Also in `queries/`: greatest-n-per-group with `DISTINCT ON` and with a join back
 - **`test_loaders.sql`**: every fixture row exercises one rule (a bar before two splits must come back ×28, an impossible date `2020-13-01` must be rejected rather than crash the load, a placeholder holiday bar must be dropped), and staged rows must equal loaded plus rejected;
 - **`test_idempotency.sql`**: an md5 fingerprint of every table after the first load must match the second;
 - **`test_portfolio.sql`**: the ledger books all 52 transactions and implies the expected positions;
+- **`test_analytics.sql`**: `whatif` and the portfolio functions against hand-calculated answers (a purchase through two splits, a EUR amount converted at the ECB rate, a split-adjusted USD position) and their error messages;
 - every query in `queries/` must run without error.
 
-GitHub Actions runs this on every push and pull request, along with unit tests for the FX reshaping in `scripts/fetch_fx.py`.
+GitHub Actions runs this on every push and pull request, then runs each CLI command against the test database, along with unit tests for the CLI's argument parsing and the FX reshaping in `scripts/fetch_fx.py`.
 
 ## Repository layout
 
@@ -166,7 +220,7 @@ GitHub Actions runs this on every push and pull request, along with unit tests f
 migrations/   numbered, forward-only schema changes (applied once, in order)
 loaders/      re-runnable data loads: staging -> validate -> upsert -> rejects
 queries/      answers, one file per question, grouped by milestone
-scripts/      reset.ps1, load.ps1, fetch_prices.py, fetch_fx.py
+scripts/      reset.ps1, load.ps1, fetch_prices.py, fetch_fx.py, folio.py (the CLI)
 tests/        fixtures, assertion helpers, test files and run.sh
 data/         hand-written CSVs are committed; downloaded vendor files are not
 ```

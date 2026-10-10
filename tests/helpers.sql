@@ -1,6 +1,3 @@
--- Assertion helpers, prepended to every test file by tests/run.sh. They live in pg_temp,
--- so they disappear when the test's psql session ends.
-
 CREATE FUNCTION pg_temp.eq(label text, actual anycompatible, expected anycompatible)
 RETURNS void LANGUAGE plpgsql AS $$
 BEGIN
@@ -16,7 +13,7 @@ BEGIN
         EXECUTE stmt;
     EXCEPTION
         WHEN integrity_constraint_violation OR data_exception
-          OR generated_always THEN
+            OR SQLSTATE '428C9' THEN
             RETURN;
     END;
     RAISE EXCEPTION 'FAILED: constraint not enforced: %', label;
@@ -32,4 +29,19 @@ EXCEPTION
         RETURN;
     WHEN OTHERS THEN
         RAISE EXCEPTION 'FAILED: valid statement rejected: % (%)', label, SQLERRM;
+END $$;
+
+CREATE FUNCTION pg_temp.must_raise(label text, stmt text, message text)
+RETURNS void LANGUAGE plpgsql AS $$
+BEGIN
+    BEGIN
+        EXECUTE stmt;
+    EXCEPTION
+        WHEN raise_exception THEN
+            IF SQLERRM NOT LIKE '%' || message || '%' THEN
+                RAISE EXCEPTION 'FAILED: % raised "%" instead of "%"', label, SQLERRM, message;
+            END IF;
+            RETURN;
+    END;
+    RAISE EXCEPTION 'FAILED: no error raised: %', label;
 END $$;

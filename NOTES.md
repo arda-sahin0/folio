@@ -64,9 +64,17 @@ Positions, cash balances, trade amounts, adjusted prices, returns and cross rate
 
 `txn_types` is not just a list of names: `cash_sign` (−1, 0, 1) says how each type moves cash, and `affects_position` whether it changes holdings. Queries can use these columns instead of hard-coding `CASE txn_type WHEN …` (the position check in `tests/test_portfolio.sql` does). Sectors are a lookup table too, so a typo like `Technology` is rejected by a foreign key.
 
+## Valuing the account in EUR
+
+The account is kept in EUR, but it buys US stocks and receives dollar dividends. `transactions` has no currency column because the currency follows from the row: trades and dividends are in the security's currency, deposits, withdrawals and fees in the account's base currency. Every flow is converted at the ECB rate of its own day (`eur_rate`, an as-of lookup: the latest rate on or before the date, ignored if older than a week), as if the broker converted automatically. Holdings are converted at the rate of the valuation date, so the reported profit includes the currency effect.
+
+If any flow or holding cannot be converted, the totals come back as NULL instead of silently leaving it out: an unknown number is better than a wrong one.
+
 ## Known limitations
 
-- `transactions` has no currency column yet, so EUR and USD cash amounts cannot be summed correctly. Planned for M5.
+- The ledger has no explicit currency conversions: dollars for US purchases are assumed to be bought at the ECB rate of the trade date. Real brokers charge a spread.
+- Portfolio return is profit divided by the net amount paid in. Time- and money-weighted returns, which account for when money was added, are M5.
+- If Yahoo's split list misses a split, that stock's older prices stay adjusted for it. SAP looks like such a case: its December 2007 4:1 split is not listed and there is no jump in the series, so its 2004 prices are about a quarter of what traded. Returns are still right because the series is continuous, but the stored price is not what traded.
 - Dividends are booked on the ex-date, not the payment date.
 - Returns in `queries/m4/` are price returns; dividends are not reinvested.
 - Fetching during market hours stores an unfinished bar for that day. The next load overwrites it, but queries in between see a partial day.

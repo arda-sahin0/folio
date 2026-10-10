@@ -1,5 +1,3 @@
--- Checks the loaders against tests/fixtures, whose rows each exercise one rule.
-
 SELECT pg_temp.eq('price bars loaded', (SELECT count(*) FROM daily_prices), 10);
 
 SELECT pg_temp.eq('staged price rows = loaded + rejected',

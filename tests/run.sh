@@ -1,6 +1,3 @@
-#!/usr/bin/env bash
-# Builds a fresh database from the migrations, loads the files in data/ twice and runs every
-# test and query against it. Used by CI; DESTROYS the contents of the target database.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
